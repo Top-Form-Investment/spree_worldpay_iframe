@@ -130,11 +130,9 @@ module Spree
             c_number = '4242********4242' if c_number.blank?
             c_last_digits = c_number.last(4)
             c_name = xml_response.at_xpath('//cardHolderName').content
-            card = Spree::CreditCard.where(user_id: order.user_id, month: c_month, year: c_year, cc_type: CARD_CODES[c_cc_type]||c_cc_type, last_digits: c_last_digits, name: c_name, payment_method_id: payment.payment_method_id).first_or_initialize
-            puts card.inspect
-            if card.id.blank?
-              card.number = c_number
-              card.verification_value = payment.response_code
+            card = Spree::CreditCard.where("user_id = ? AND month = ? AND year = ? AND cc_type = ? AND last_digits = ? AND name = ?  AND payment_method_id = ? ",order.user_id, c_month, c_year, CARD_CODES[c_cc_type]||c_cc_type, c_last_digits, c_name, payment.payment_method_id).first
+            if card.blank?
+              card = Spree::CreditCard.new(number: c_number, verification_value: payment.response_code, user_id: order.user_id, month: c_month, year: c_year, cc_type: CARD_CODES[c_cc_type]||c_cc_type, last_digits: c_last_digits, name: c_name, payment_method_id: payment.payment_method_id)
               card.save
             end
             payment.source = card
