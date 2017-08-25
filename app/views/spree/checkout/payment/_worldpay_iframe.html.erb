@@ -1,0 +1,44 @@
+<script type='text/javascript'>
+	$(document).ready(function() {
+		$("form#checkout_form_payment input[type='radio']").on('click',function() {
+			if($(this).val() == '<%= payment_method.id%>'){
+				$("form#checkout_form_payment").find("input[type='submit']").prop('disabled', true);
+			}
+		});
+	});
+ </script>
+ <% order_code, error, world_pay_url = payment_method.hpp_payment_url(current_order.id)%>
+ <% if world_pay_url.present?%>
+    <div id='custom-html' height="600" width="815"><%= image_tag('ajax-loader.gif') %></div>
+
+    <script type='text/javascript'>
+	    //your iframe options including the redirect URL
+	    var customOptions = {
+	        type: 'iframe',
+	        iframeIntegrationId: 'libraryObject',
+	        iframeHelperURL: 'http://test.sandandsky.com/helper.html',
+	        iframeBaseURL: 'http://test.sandandsky.com',
+	        url: "<%=world_pay_url%>".replace('&amp;amp;', '&'),
+	        target: 'custom-html',
+	        trigger: 'custom-trigger',
+	        lightboxMaskOpacity: 50,
+	        lightboxMaskColor: '#000000',
+	        accessibility: true,
+	        debug: false,
+	        language: 'en',
+	        country: 'gb',
+	        preferredPaymentMethod: '',
+	        successURL: "<%= redirect_url('success' ,order_code, payment_method.id)%>",
+	        cancelURL: "<%= redirect_url('cancel' ,order_code, payment_method.id)%>",
+	        failureURL: "<%= redirect_url('failure' ,order_code, payment_method.id)%>",
+	        pendingURL: "<%= redirect_url('pending' ,order_code, payment_method.id)%>",
+	        errorURL: "<%= redirect_url('error' ,order_code, payment_method.id)%>"
+	    };
+	    //initialise the library and pass options
+	    var libraryObject = new WPCL.Library();
+	    libraryObject.setup(customOptions);
+    </script>
+
+<% else %>
+	<%= error%>
+<% end %>

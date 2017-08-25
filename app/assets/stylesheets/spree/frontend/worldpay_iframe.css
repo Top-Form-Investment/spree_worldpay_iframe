@@ -1,0 +1,7 @@
+/*
+ *= require spree/frontend
+*/
+
+div#custom-html {
+  text-align: center;
+}
