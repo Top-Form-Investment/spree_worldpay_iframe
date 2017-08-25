@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.author       = 'Kaushal Kishor Sharma'
   s.email        = 'kaushal@supernova.xyz'
-  s.homepage     = 'http://arvindvyas.com'
+  s.homepage     = 'https://github.com/kaushal-kishor/spree_worldpay_iframe'
 
 
   s.files        = `git ls-files`.split("\n")
