@@ -20,7 +20,9 @@ module Spree
           self.preferences[:test_mode].present? ? TEST_URL : LIVE_URL
         end
 
-        def setup_api_call
+        def setup_api_call(country_iso, currency)
+          @country_iso = country_iso
+          @currency = currency
           url = URI(api_url)
           http = Net::HTTP.new(url.host, url.port)
           http.use_ssl = true
@@ -28,7 +30,7 @@ module Spree
           request = Net::HTTP::Post.new(url)
           request["content-type"] = 'text/xml'
           request["cache-control"] = 'no-cache'
-          request.basic_auth(self.preferences[:login], self.preferences[:password])
+          request.basic_auth(self.login, self.password)
           [http, request]
         end
 
@@ -36,21 +38,20 @@ module Spree
           xml = Builder::XmlMarkup.new :indent => 2
           xml.instruct! :xml, :encoding => 'UTF-8'
           xml.declare! :DOCTYPE, :paymentService, :PUBLIC, "-//WorldPay//DTD WorldPay PaymentService v1//EN", "http://dtd.worldpay.com/paymentService_v1.dtd"
-          xml.tag! 'paymentService', 'version' => "1.4", 'merchantCode' => self.preferences[:merchant_code] do
+          xml.tag! 'paymentService', 'version' => "1.4", 'merchantCode' => self.merchant_code do
             yield xml
           end
           xml.target!
         end
 
-
         def hpp_payment_url(order_id)
-          http, request = setup_api_call
           order = Spree::Order.find_by_id(order_id)
           billing_address = order.billing_address
+          http, request = setup_api_call(billing_address.country.iso3, order.currency)
           order_code = "#{order.number}-#{Time.now.to_i}"
           builder = build_request do |xml|
             xml.submit do
-              xml.order(orderCode: "#{order.number}-#{Time.now.to_i}", installationId: self.preferences[:installation_id]) do
+              xml.order(orderCode: "#{order.number}-#{Time.now.to_i}", installationId: self.installation_id) do
                 xml.description order.line_items.map(&:sku).join(',')
                 xml.amount(exponent: '2', currencyCode: order.currency, value: order.total.to_money.cents)
                 xml.orderContent order.line_items.map(&:sku).join(',')
@@ -58,7 +59,7 @@ module Spree
                   xml.include(code: 'ALL')
                 end
                 xml.shopper do
-                  xml.shopperEmailAddress 'admin@sandandsky.com'
+                  xml.shopperEmailAddress self.preferences[:shopper_email]
                 end
                 xml.billingAddress do
                   xml.address do
@@ -78,7 +79,10 @@ module Spree
         end
 
         def order_inquiry(order_code)
-          http, request = setup_api_call
+          order_number = order_code.split('-')
+          order = Spree::Order.find_by_number(order_number)
+          billing_address = order.billing_address
+          http, request = setup_api_call(billing_address.country.iso3, order.currency)
           builder = build_request do |xml|
             xml.tag! 'inquiry' do
               xml.tag! 'orderInquiry', 'orderCode' => order_code
@@ -95,6 +99,9 @@ module Spree
           begin
             http, request = setup_api_call
             payment = Spree::Payment.find_by_response_code authorization
+            order = payment.order
+            billing_address = order.billing_address
+            http, request = setup_api_call(billing_address.country.iso3, order.currency)
             if payment.present?
               builder = build_request do |xml|
                 xml.modify do

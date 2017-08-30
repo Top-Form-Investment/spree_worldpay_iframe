@@ -6,6 +6,62 @@ module Spree
     preference :password, :string
     preference :merchant_code, :string
     preference :installation_id, :string
+    preference :shopper_email, :string
+
+    attr_accessor :country_iso, :currency
+
+    def merchant_info
+      merchant_code = WORLDPAY_MERCHANT_COUNTRY['merchant_country'][country_iso][currency]
+      WORLDPAY_MERCHANT_CODE['merchant_code'][merchant_code]||{}
+    end
+
+    def login
+      begin
+        merchant_info['xml_username']
+      rescue Exception => e
+        self.preferences[:login]
+      end
+    end
+
+    def password
+      begin
+        merchant_info['xml_password']
+      rescue Exception => e
+        self.preferences[:password]
+      end
+    end
+
+    def merchant_code
+      begin
+        merchant_info['code']
+      rescue Exception => e
+        self.preferences[:merchant_code]
+      end
+    end
+
+    def installation_id
+      begin
+        merchant_info['installation_id']
+      rescue Exception => e
+        self.preferences[:installation_id]
+      end
+    end
+
+    def shop_name
+      begin
+        merchant_info['shop_name']
+      rescue Exception => e
+        ''
+      end
+    end
+
+    def checkout_message
+      begin
+        merchant_info['checkout_message']
+      rescue Exception => e
+        ''
+      end
+    end
 
     def provider_class
       ActiveMerchant::Billing::WorldpayGateway
