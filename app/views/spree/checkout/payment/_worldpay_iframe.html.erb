@@ -9,10 +9,13 @@
 		});
 	});
  </script>
- <% order_code, error, world_pay_url = payment_method.hpp_payment_url(current_order.id)%>
+ <% order_code, error, world_pay_url, entity, message, installation_id = payment_method.hpp_payment_url(current_order.id)%>
  <% if world_pay_url.present?%>
-    <div id='custom-html' height="600" width="815"><%= image_tag('ajax-loader.gif') %></div>
-
+    <div id='custom-html' height="100%" width="100%"><%= image_tag('ajax-loader.gif') %></div>
+    <div id='merchant-entity' class='entity-info'>
+    	<h8> <%= entity%> </h8>
+    	<h10> <%= message%> </h10>
+    </div>
     <script type='text/javascript'>
 	    //your iframe options including the redirect URL
 	    var customOptions = {
@@ -28,7 +31,7 @@
 	        accessibility: true,
 	        debug: false,
 	        language: 'en',
-	        country: 'gb',
+	        country: '<%= current_order.billing_address.country.iso%>',
 	        preferredPaymentMethod: '',
 	        successURL: "<%= redirect_url('success' ,order_code, payment_method.id)%>",
 	        cancelURL: "<%= redirect_url('cancel' ,order_code, payment_method.id)%>",
@@ -40,7 +43,6 @@
 	    var libraryObject = new WPCL.Library();
 	    libraryObject.setup(customOptions);
     </script>
-
 <% else %>
 	<%= error%>
 <% end %>
