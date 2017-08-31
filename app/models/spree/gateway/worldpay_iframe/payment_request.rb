@@ -74,8 +74,8 @@ module Spree
           end
           request.body = builder
           response = http.request(request)
-          response = Nokogiri::XML(response.read_body)
           puts response.read_body.inspect
+          response = Nokogiri::XML(response.read_body)
           [order_code, response.at_xpath('//error').try(:content), response.at_xpath('//reference').try(:content), self.shop_name, self.checkout_message, self.installation_id]
         end
 
