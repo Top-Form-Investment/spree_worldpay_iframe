@@ -81,14 +81,17 @@ module Spree
     end
 
     def purchase(money, credit_card, options = {})
+      puts "-----------purchase----------------"
       provider(credit_card, options).purchase(money, credit_card, options)
     end
 
     def authorize(money, credit_card, options = {})
+      puts "-----------authorize----------------"
       provider(credit_card, options).authorize(money, credit_card, options)
     end
 
     def capture(money, authorization, options = {})
+      puts "-----------capture----------------"
       provider(authorization, options).capture(money, authorization, options.merge!({authorization_validated: true}))
     end
 
