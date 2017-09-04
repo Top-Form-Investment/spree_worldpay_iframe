@@ -80,6 +80,10 @@ module Spree
       false
     end
 
+    def actions
+      %w(purchase authorize void capture refund credit cancel)
+    end
+
     def purchase(money, credit_card, options = {})
       puts "-----------purchase----------------"
       provider(credit_card, options).purchase(money, credit_card, options)
