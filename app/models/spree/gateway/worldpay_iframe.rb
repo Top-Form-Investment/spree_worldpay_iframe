@@ -80,10 +80,6 @@ module Spree
       false
     end
 
-    def actions
-      %w(purchase authorize void capture refund credit cancel)
-    end
-
     def purchase(money, credit_card, options = {})
       puts "-----------purchase----------------"
       provider(credit_card, options).purchase(money, credit_card, options)
@@ -138,7 +134,9 @@ module Spree
     private
 
     def options_for_card(credit_card, options)
-      options[:login] = login
+      options[:login] = merchant_code
+      options[:password] = password
+      options[:merchant_code] = merchant_code
       options = options().merge( options )
     end
 
