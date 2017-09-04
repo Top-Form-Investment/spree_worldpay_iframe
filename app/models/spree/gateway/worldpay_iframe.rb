@@ -138,12 +138,17 @@ module Spree
     private
 
     def options_for_card(credit_card, options)
-      options[:login] = preferred_login
+      options[:login] = login
       options = options().merge( options )
     end
 
     def auth_credit_card(authorization)
-      Spree::Payment.find_by_response_code(authorization).source
+      payment = Spree::Payment.find_by_response_code(authorization)
+      order = payment.order
+      billing_address = order.billing_address
+      @currency = payment.currency
+      @country_iso = billing_address.country.iso3
+      payment.source
     end
 
     def payment_currency(authorization, options)
@@ -156,7 +161,7 @@ module Spree
     def credit_card_provider(credit_card, options = {})
       gateway_options = options_for_card(credit_card, options)
       gateway_options.delete :login if gateway_options.has_key?(:login) and gateway_options[:login].nil?
-      gateway_options[:inst_id] = self.preferred_installation_id
+      gateway_options[:inst_id] = self.installation_id
       ActiveMerchant::Billing::Base.gateway_mode = gateway_options[:server].to_sym
       provider_class.new(gateway_options)
     end
