@@ -98,7 +98,7 @@ module Spree
         def void_refund(authorization)
           void_result = false
           begin
-            http, request = setup_api_call
+            puts "-------------Void-Refund--------------------"
             payment = Spree::Payment.find_by_response_code authorization
             order = payment.order
             billing_address = order.billing_address
