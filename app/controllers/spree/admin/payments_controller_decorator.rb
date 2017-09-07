@@ -1,4 +1,4 @@
-Spree::Admin::WorldpayIframeController.class_eval do
+Spree::Admin::PaymentsController.class_eval do
   def worldpay_refund
     if request.get?
       if @payment.source.state == 'refunded'

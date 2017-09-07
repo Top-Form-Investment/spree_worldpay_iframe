@@ -7,6 +7,9 @@
 				$("form#checkout_form_payment").find("input[type='submit']").prop('disabled', true);
 			}
 		});
+		if($("form#checkout_form_payment input[type='radio']:checked").val() == '<%= payment_method.id%>'){
+			$("form#checkout_form_payment").find("input[type='submit']").prop('disabled', true);
+		}
 	});
  </script>
  <% order_code, error, world_pay_url, entity, message, installation_id = payment_method.hpp_payment_url(current_order.id)%>
