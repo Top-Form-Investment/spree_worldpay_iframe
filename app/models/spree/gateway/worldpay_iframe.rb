@@ -16,7 +16,7 @@ module Spree
     end
 
     def merchant_entity
-      merchant_entity = WORLDPAY_MERCHANT_COUNTRY['merchant_country'][country_iso][currency]['merchant_entity']
+      merchant_entity = WORLDPAY_MERCHANT_COUNTRY['merchant_country'][country_iso]['merchant_entity']
       WORLDPAY_MERCHANT_ENTITY['merchant_entity'][merchant_entity]['name']
     end
 
