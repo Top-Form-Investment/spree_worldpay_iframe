@@ -15,6 +15,11 @@ module Spree
       WORLDPAY_MERCHANT_CODE['merchant_code'][merchant_code]||{}
     end
 
+    def merchant_entity
+      merchant_entity = WORLDPAY_MERCHANT_COUNTRY['merchant_country'][country_iso][currency]['merchant_entity']
+      WORLDPAY_MERCHANT_ENTITY['merchant_entity'][merchant_entity]['name']
+    end
+
     def login
       begin
         merchant_info['xml_username']
@@ -49,15 +54,7 @@ module Spree
 
     def shop_name
       begin
-        merchant_info['shop_name']
-      rescue Exception => e
-        ''
-      end
-    end
-
-    def checkout_message
-      begin
-        merchant_info['checkout_message']
+        merchant_entity
       rescue Exception => e
         ''
       end

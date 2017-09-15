@@ -12,12 +12,11 @@
 		}
 	});
  </script>
- <% order_code, error, world_pay_url, entity, message, installation_id = payment_method.hpp_payment_url(current_order.id)%>
+ <% order_code, error, world_pay_url, entity, installation_id = payment_method.hpp_payment_url(current_order.id)%>
  <% if world_pay_url.present?%>
     <div id='custom-html' height="100%" width="100%"><%= image_tag('ajax-loader.gif') %></div>
     <div id='merchant-entity' class='entity-info'>
     	<h8> <%= entity%> </h8>
-    	<h10> <%= message%> </h10>
     </div>
     <script type='text/javascript'>
 	    //your iframe options including the redirect URL
