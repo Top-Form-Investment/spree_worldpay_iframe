@@ -30,7 +30,7 @@ module Spree
           request = Net::HTTP::Post.new(url)
           request["content-type"] = 'text/xml'
           request["cache-control"] = 'no-cache'
-          request.basic_auth(self.login, self.password)
+          request.basic_auth(self.preferences[:login], self.preferences[:password])
           [http, request]
         end
 
@@ -38,7 +38,7 @@ module Spree
           xml = Builder::XmlMarkup.new :indent => 2
           xml.instruct! :xml, :encoding => 'UTF-8'
           xml.declare! :DOCTYPE, :paymentService, :PUBLIC, "-//WorldPay//DTD WorldPay PaymentService v1//EN", "http://dtd.worldpay.com/paymentService_v1.dtd"
-          xml.tag! 'paymentService', 'version' => "1.4", 'merchantCode' => self.merchant_code do
+          xml.tag! 'paymentService', 'version' => "1.4", 'merchantCode' => self.preferences[:merchant_code] do
             yield xml
           end
           xml.target!
@@ -51,7 +51,7 @@ module Spree
           order_code = "#{order.number}-#{Time.now.to_i}"
           builder = build_request do |xml|
             xml.submit do
-              xml.order(orderCode: "#{order.number}-#{Time.now.to_i}", installationId: self.installation_id) do
+              xml.order(orderCode: "#{order.number}-#{Time.now.to_i}", installationId: self.preferences[:installation_id]) do
                 xml.description order.line_items.map(&:sku).join(',')
                 xml.amount(exponent: '2', currencyCode: order.currency, value: order.total.to_money.cents)
                 xml.orderContent order.line_items.map(&:sku).join(',')
@@ -76,7 +76,7 @@ module Spree
           response = http.request(request)
           puts response.read_body.inspect
           response = Nokogiri::XML(response.read_body)
-          [order_code, response.at_xpath('//error').try(:content), response.at_xpath('//reference').try(:content), self.shop_name, self.installation_id]
+          [order_code, response.at_xpath('//error').try(:content), response.at_xpath('//reference').try(:content), self.preferences[:installation_id]]
         end
 
         def order_inquiry(order_code)

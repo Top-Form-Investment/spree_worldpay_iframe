@@ -1,0 +1,37 @@
+<br>
+<div data-hook="display" class="form-group">
+  <%= label_tag :payment_method_preferred_login, Spree.t(:login) %>
+  <%= text_field(:payment_method, :preferred_login, class: 'form-control' )%>
+</div>
+<div data-hook="display" class="form-group">
+  <%= label_tag :payment_method_preferred_password, Spree.t(:password) %>
+  <%= text_field(:payment_method, :preferred_password, class: 'form-control' )%>
+</div>
+<div data-hook="display" class="form-group">
+  <%= label_tag :payment_method_preferred_merchant_code, Spree.t(:merchant_code) %>
+  <%= text_field(:payment_method, :preferred_merchant_code, class: 'form-control' )%>
+</div>
+<div data-hook="display" class="form-group">
+  <%= label_tag :payment_method_preferred_installation_id, Spree.t(:installation_id) %>
+  <%= text_field(:payment_method, :preferred_installation_id, class: 'form-control' )%>
+</div>
+<div data-hook="display" class="form-group">
+  <%= label_tag :payment_method_preferred_accepting_currency, Spree.t(:accepting_currency) %>
+  <%= select(:payment_method, :preferred_accepting_currency, Spree::Config[:supported_currencies].split(',').map { |code| ::Money::Currency.find(code) }.map(&:iso_code), {}, {class: 'select2', multiple: true})%>
+</div>
+<div data-hook="display" class="form-group">
+  <%= label_tag :payment_method_preferred_card_type, Spree.t(:payment_card_type) %>
+  <%= select(:payment_method, :preferred_card_type, [['Visa','VISA-SSL'],['Master', 'MAESTRO-SSL'],['Discover','DISCOVER-SSL'],['American Express','AMEX-SSL'],['JCB','JCB-SSL'],['Laser', 'LASER-SSL'],['Diners Club','DINERS-SSL'],['ALIPAY','ALIPAY-SSL']], {}, {class: 'select2', multiple: true})%>
+</div>
+<div data-hook="display" class="form-group">
+  <%= label_tag :payment_method_preferred_country, Spree.t(:country) %>
+  <%= collection_select(:payment_method, :preferred_country, Spree::Country.all, :iso3, :name, {}, {class: 'select2', multiple: true})%>
+</div>
+<div data-hook="display" class="form-group">
+  <%= label_tag :payment_method_preferred_shopper_email, Spree.t(:shopper_email) %>
+  <%= text_field(:payment_method, :preferred_shopper_email, class: 'form-control' )%>
+</div>
+<div data-hook="display" class="form-group">
+  <%= label_tag :payment_method_preferred_merchant_address, Spree.t(:merchant_address) %>
+  <%= text_area(:payment_method, :preferred_merchant_address, class: 'form-control' )%>
+</div>

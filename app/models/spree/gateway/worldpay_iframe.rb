@@ -6,59 +6,11 @@ module Spree
     preference :password, :string
     preference :merchant_code, :string
     preference :installation_id, :string
+    preference :accepting_currency, :array
+    preference :card_type, :array
+    preference :country, :array
     preference :shopper_email, :string
-
-    attr_accessor :country_iso, :currency
-
-    def merchant_info
-      merchant_code = WORLDPAY_MERCHANT_COUNTRY['merchant_country'][country_iso][currency]
-      WORLDPAY_MERCHANT_CODE['merchant_code'][merchant_code]||{}
-    end
-
-    def merchant_entity
-      merchant_entity = WORLDPAY_MERCHANT_COUNTRY['merchant_country'][country_iso]['merchant_entity']
-      WORLDPAY_MERCHANT_ENTITY['merchant_entity'][merchant_entity]['name']
-    end
-
-    def login
-      begin
-        merchant_info['xml_username']
-      rescue Exception => e
-        self.preferences[:login]
-      end
-    end
-
-    def password
-      begin
-        merchant_info['xml_password']
-      rescue Exception => e
-        self.preferences[:password]
-      end
-    end
-
-    def merchant_code
-      begin
-        merchant_info['code']
-      rescue Exception => e
-        self.preferences[:merchant_code]
-      end
-    end
-
-    def installation_id
-      begin
-        merchant_info['installation_id']
-      rescue Exception => e
-        self.preferences[:installation_id]
-      end
-    end
-
-    def shop_name
-      begin
-        merchant_entity
-      rescue Exception => e
-        ''
-      end
-    end
+    preference :merchant_address, :text
 
     def provider_class
       ActiveMerchant::Billing::WorldpayGateway
@@ -75,6 +27,10 @@ module Spree
 
     def source_required?
       false
+    end
+
+    def eligible?(currency, country_iso)
+      (self.preferences[:accepting_currency]||[]).include?(currency) && (self.preferences[:country]||[]).include?(country_iso)
     end
 
     def purchase(money, credit_card, options = {})
@@ -119,21 +75,12 @@ module Spree
       end
     end
 
-    # def response(obj, authorization)
-    #   obj.authorization = authorization
-    #   obj.responses.each_with_index do |r,i|
-    #     obj.responses[i].authorization = authorization
-    #   end
-    #   obj.params[:authorization] = authorization
-    #   obj
-    # end
-
     private
 
     def options_for_card(credit_card, options)
-      options[:login] = merchant_code
-      options[:password] = password
-      options[:merchant_code] = merchant_code
+      options[:login] = self.preferences[:login]
+      options[:password] = self.preferences[:password]
+      options[:merchant_code] = self.preferences[:merchant_code]
       options = options().merge( options )
     end
 
