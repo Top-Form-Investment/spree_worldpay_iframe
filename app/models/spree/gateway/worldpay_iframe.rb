@@ -103,7 +103,7 @@ module Spree
     def credit_card_provider(credit_card, options = {})
       gateway_options = options_for_card(credit_card, options)
       gateway_options.delete :login if gateway_options.has_key?(:login) and gateway_options[:login].nil?
-      gateway_options[:inst_id] = self.installation_id
+      gateway_options[:inst_id] = self.preferences[:installation_id]
       ActiveMerchant::Billing::Base.gateway_mode = gateway_options[:server].to_sym
       provider_class.new(gateway_options)
     end
