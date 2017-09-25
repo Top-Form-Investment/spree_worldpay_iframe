@@ -11,6 +11,7 @@ module Spree
     preference :country, :array
     preference :shopper_email, :string
     preference :merchant_address, :text
+    preference :test_mode, :boolean
 
     def provider_class
       ActiveMerchant::Billing::WorldpayGateway
