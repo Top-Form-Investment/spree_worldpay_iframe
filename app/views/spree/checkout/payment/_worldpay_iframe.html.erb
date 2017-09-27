@@ -2,16 +2,21 @@
 	$(document).ready(function() {
 		$("form#checkout_form_payment input[type='radio']").on('click',function() {
 			if($(this).val() == '<%= payment_method.id%>'){
-				$("form#checkout_form_payment").find("input[type='submit']").prop('disabled', true);
-			}
+				$("form#checkout_form_payment").find("input[type='submit']").hide();
+			}else{
+                $("form#checkout_form_payment").find("input[type='submit']").show();
+            }
 		});
 		if($("form#checkout_form_payment input[type='radio']:checked").val() == '<%= payment_method.id%>'){
 			$("form#checkout_form_payment").find("input[type='submit']").prop('disabled', true);
-		}
+		}else{
+            $("form#checkout_form_payment").find("input[type='submit']").show();
+        }
 	});
  </script>
- <% order_code, error, world_pay_url, entity, installation_id = payment_method.hpp_payment_url(current_order.id)%>
+ <% order_code, error, world_pay_url, preferred_method = payment_method.hpp_payment_url(current_order.id)%>
  <% if world_pay_url.present?%>
+    <% %>
     <div id="custom-html-<%= payment_method.id%>" height="100%" width="100%"><%= image_tag('ajax-loader.gif') %></div>
     <div id='merchant-entity' class='entity-info'>
     	<span class='inputsummary'><p> <%= payment_method.preferences[:merchant_address].html_safe %> </p></span>
@@ -22,26 +27,26 @@
 	    	var customOptions = {};
 	    }
     	customOptions['<%= payment_method.id%>'] = {
-        type: 'iframe',
-        iframeIntegrationId: 'libraryObject',
-        iframeHelperURL: 'http://test.sandandsky.com/helper.html',
-        iframeBaseURL: 'http://test.sandandsky.com',
-        url: "<%=world_pay_url%>".replace('&amp;amp;', '&'),
-        target: "custom-html-<%= payment_method.id%>",
-        trigger: "custom-trigger-<%= payment_method.id%>",
-        lightboxMaskOpacity: 50,
-        lightboxMaskColor: '#000000',
-        accessibility: true,
-        debug: false,
-        language: 'en',
-        country: '<%= current_order.billing_address.country.iso%>',
-        inject: 'immediate',
-        preferredPaymentMethod: '<%=payment_method.preferences[:card_type].select{|s| s.present?}.first||''%>',
-        successURL: "<%= redirect_url('success' ,order_code, payment_method.id)%>",
-        cancelURL: "<%= redirect_url('cancel' ,order_code, payment_method.id)%>",
-        failureURL: "<%= redirect_url('failure' ,order_code, payment_method.id)%>",
-        pendingURL: "<%= redirect_url('pending' ,order_code, payment_method.id)%>",
-        errorURL: "<%= redirect_url('error' ,order_code, payment_method.id)%>"
+            type: 'iframe',
+            iframeIntegrationId: 'libraryObject',
+            iframeHelperURL: 'http://test.sandandsky.com/helper.html',
+            iframeBaseURL: 'http://test.sandandsky.com',
+            url: "<%=world_pay_url%>".replace('&amp;amp;', '&'),
+            target: "custom-html-<%= payment_method.id%>",
+            trigger: "custom-trigger-<%= payment_method.id%>",
+            lightboxMaskOpacity: 50,
+            lightboxMaskColor: '#000000',
+            accessibility: true,
+            debug: false,
+            language: 'en',
+            country: '<%= current_order.billing_address.country.iso%>',
+            inject: 'immediate',
+            preferredPaymentMethod: '<%=preferred_method%>',
+            successURL: "<%= redirect_url('success' ,order_code, payment_method.id)%>",
+            cancelURL: "<%= redirect_url('cancel' ,order_code, payment_method.id)%>",
+            failureURL: "<%= redirect_url('failure' ,order_code, payment_method.id)%>",
+            pendingURL: "<%= redirect_url('pending' ,order_code, payment_method.id)%>",
+            errorURL: "<%= redirect_url('error' ,order_code, payment_method.id)%>"
 	    };
 	    //initialise the library and pass options
 	    libraryObject = new WPCL.Library();
