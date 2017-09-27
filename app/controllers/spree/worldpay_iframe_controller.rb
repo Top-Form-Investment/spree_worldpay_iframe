@@ -1,7 +1,7 @@
 module Spree
   class WorldpayIframeController < StoreController
 
-  	before_action :setup_order
+    before_action :setup_order
 
    #  def success
    #    payment = Spree::Payment.new
@@ -15,18 +15,18 @@ module Spree
 
    #    if @order.completed?
    #      @current_order = nil
-   #      flash.notice = Spree.t(:order_processed_successfully)
+   #      flash[:notice] = Spree.t(:order_processed_successfully)
    #      flash['order_completed'] = true
    #      redirect_to spree.order_path(@order)
    #    else
    #      redirect_to checkout_state_path(@order.state)
    #    end
-  	# end
+    # end
 
     def success
 
       unless authorized?
-        flash.notice = Spree.t(:payment_processing_failed)
+        flash[:notice] = Spree.t(:payment_processing_failed)
         redirect_to checkout_state_path(@order.state) and return
       end
 
@@ -40,40 +40,49 @@ module Spree
       @order.next
 
       if @order.complete?
-        flash.notice = Spree.t(:order_processed_successfully)
+        flash[:notice] = Spree.t(:order_processed_successfully)
         redirect_to order_path(@order, :token => @order.guest_token)
       else
         redirect_to checkout_state_path(@order.state)
       end
     end
 
-  	def cancel
-  		redirect_to checkout_state_path(@order.state)
-  	end
+    def cancel
+      puts '**************cancel**************'
+      puts params.inspect
+      flash[:error] = "Payment has been canceled"
+      redirect_to checkout_state_path(@order.state)
+    end
 
-  	def failure
-  		flash.error = "Order has not completed"
-  		redirect_to checkout_state_path(@order.state)
-  	end
+    def failure
+      puts '**************failure**************'
+      puts params.inspect
+      flash[:error] = "Order has not completed due to payment failure"
+      redirect_to checkout_state_path(@order.state)
+    end
 
-  	def pending
-  		flash.notice = "Order is in process"
-  		redirect_to checkout_state_path(@order.state)
-  	end
+    def pending
+      puts '**************pending**************'
+      puts params.inspect
+      flash[:notice] = "Order is in process"
+      redirect_to checkout_state_path(@order.state)
+    end
 
-  	def error
-  		flash.notice = "Order is not completed"
-  		redirect_to checkout_state_path(@order.state)
-  	end
+    def error
+      puts '**************Error**************'
+      puts params.inspect
+      flash[:error] = "Order is not completed due to payment error"
+      redirect_to checkout_state_path(@order.state)
+    end
 
-  	private
+    private
 
     def authorized?
       params[:paymentStatus] == 'AUTHORISED'
     end
 
-  	def setup_order
-  		@order = Spree::Order.find_by_number(params[:order_number])
-  	end
+    def setup_order
+      @order = Spree::Order.find_by_number(params[:order_number])
+    end
   end
 end
