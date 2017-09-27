@@ -1,32 +1,32 @@
 <script type='text/javascript'>
-	$(document).ready(function() {
-		$("form#checkout_form_payment input[type='radio']").on('click',function() {
-			if($(this).val() == '<%= payment_method.id%>'){
-				$("form#checkout_form_payment").find("input[type='submit']").hide();
-			}else{
-                $("form#checkout_form_payment").find("input[type='submit']").show();
-            }
-		});
-		if($("form#checkout_form_payment input[type='radio']:checked").val() == '<%= payment_method.id%>'){
-			$("form#checkout_form_payment").find("input[type='submit']").prop('disabled', true);
-		}else{
-            $("form#checkout_form_payment").find("input[type='submit']").show();
-        }
-	});
+  $(document).ready(function() {
+    $("form#checkout_form_payment input[type='radio']").on('click',function() {
+      if($(this).parent().attr('data-payment-type') == 'Spree::Gateway::WorldpayIframe'){
+        $("form#checkout_form_payment").find("input[type='submit']").addClass('hide');
+      }else{
+        $("form#checkout_form_payment").find("input[type='submit']").removeClass('hide');
+      }
+    });
+    if($("form#checkout_form_payment input[type='radio']:checked").val() == '<%= payment_method.id%>'){
+      $("form#checkout_form_payment").find("input[type='submit']").addClass('hide');
+    }else{
+      $("form#checkout_form_payment").find("input[type='submit']").removeClass('hide');
+    }
+  });
  </script>
  <% order_code, error, world_pay_url, preferred_method = payment_method.hpp_payment_url(current_order.id)%>
  <% if world_pay_url.present?%>
     <% %>
     <div id="custom-html-<%= payment_method.id%>" height="100%" width="100%"><%= image_tag('ajax-loader.gif') %></div>
     <div id='merchant-entity' class='entity-info'>
-    	<span class='inputsummary'><p> <%= payment_method.preferences[:merchant_address].html_safe %> </p></span>
+      <span class='inputsummary'><p> <%= payment_method.preferences[:merchant_address].html_safe %> </p></span>
     </div>
     <script type='text/javascript'>
-	    //your iframe options including the redirect URL
-	    if(customOptions == null){
-	    	var customOptions = {};
-	    }
-    	customOptions['<%= payment_method.id%>'] = {
+      //your iframe options including the redirect URL
+      if(customOptions == null){
+        var customOptions = {};
+      }
+      customOptions['<%= payment_method.id%>'] = {
             type: 'iframe',
             iframeIntegrationId: 'libraryObject',
             iframeHelperURL: 'http://test.sandandsky.com/helper.html',
@@ -47,11 +47,11 @@
             failureURL: "<%= redirect_url('failure' ,order_code, payment_method.id)%>",
             pendingURL: "<%= redirect_url('pending' ,order_code, payment_method.id)%>",
             errorURL: "<%= redirect_url('error' ,order_code, payment_method.id)%>"
-	    };
-	    //initialise the library and pass options
-	    libraryObject = new WPCL.Library();
-	    libraryObject.setup(customOptions['<%= payment_method.id%>']);
+      };
+      //initialise the library and pass options
+      libraryObject = new WPCL.Library();
+      libraryObject.setup(customOptions['<%= payment_method.id%>']);
     </script>
 <% else %>
-	<%= error%>
+  <%= error%>
 <% end %>
