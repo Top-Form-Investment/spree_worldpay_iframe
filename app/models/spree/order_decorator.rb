@@ -18,13 +18,3 @@ Spree::Order.class_eval do
   end
 
 end
-
-
-$("label[data-payment-type='Spree::Gateway::WorldpayIframe']").each(function( index ) {
-  $(this).parent().hide();
-});
-
-$("label[data-payment-type='Spree::Gateway::StripeGateway']").each(function( index ) {
-  $(this).parent().hide();
-});
-$("label[data-payment-type='Spree::Gateway::WorldpayIframe']").child('input').trigger('click');
