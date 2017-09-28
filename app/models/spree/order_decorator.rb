@@ -4,7 +4,7 @@ Spree::Order.class_eval do
 
   # Return available payment methods
   def available_payment_methods
-    @available_payment_methods ||= Spree::PaymentMethod.available_on_front_end
+    @available_payment_methods ||= Spree::PaymentMethod.available_on_front_end.order(:position)
     country_iso = self.billing_address.country.iso3
     @available_payment_methods.select{|s| s.type != 'Spree::Gateway::WorldpayIframe' || s.eligible?(self.currency, country_iso)}
   end
@@ -18,3 +18,13 @@ Spree::Order.class_eval do
   end
 
 end
+
+
+$("label[data-payment-type='Spree::Gateway::WorldpayIframe']").each(function( index ) {
+  $(this).parent().hide();
+});
+
+$("label[data-payment-type='Spree::Gateway::StripeGateway']").each(function( index ) {
+  $(this).parent().hide();
+});
+$("label[data-payment-type='Spree::Gateway::WorldpayIframe']").child('input').trigger('click');
