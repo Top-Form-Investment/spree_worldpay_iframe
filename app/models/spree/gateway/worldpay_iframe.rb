@@ -80,8 +80,7 @@ module Spree
 
     def options_for_card(credit_card, options)
       options[:login] = self.preferences[:login]
-      options[:password] = self.preferences[:password]
-      options[:merchant_code] = self.preferences[:merchant_code]
+      options[:test] = self.preferences[:test_mode]
       options = options().merge( options )
     end
 
