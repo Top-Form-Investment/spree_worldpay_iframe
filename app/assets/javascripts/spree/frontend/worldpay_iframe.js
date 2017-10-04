@@ -932,3 +932,11 @@ WPCL.focusElement = function (element) {
         }, 0);
     }
 };
+
+function hide_order_now(obj){
+    if($(obj).parent().attr('data-payment-type') == 'Spree::Gateway::WorldpayIframe'){
+        $("form#checkout_form_payment").find("input[type='submit']").addClass('hide');
+    }else{
+        $("form#checkout_form_payment").find("input[type='submit']").removeClass('hide');
+    }
+}
