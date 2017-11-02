@@ -1,9 +1,6 @@
 <% order_code, error, world_pay_url, preferred_method = payment_method.hpp_payment_url(current_order.id)%>
 <% if world_pay_url.present?%>
   <div id="custom-html-<%= payment_method.id%>" height="100%" width="100%" class='worldpay-payment'></div>
-  <div id='merchant-entity' class='entity-info'>
-    <span class='inputsummary'><p> <%= payment_method.preferences[:merchant_address].html_safe %> </p></span>
-  </div>
   <script type='text/javascript'>
     //your iframe options including the redirect URL
     if(customOptions == null){
@@ -28,7 +25,8 @@
           cancelURL: "<%= redirect_url('cancel' ,order_code, payment_method.id)%>",
           failureURL: "<%= redirect_url('failure' ,order_code, payment_method.id)%>",
           pendingURL: "<%= redirect_url('pending' ,order_code, payment_method.id)%>",
-          errorURL: "<%= redirect_url('error' ,order_code, payment_method.id)%>"
+          errorURL: "<%= redirect_url('error' ,order_code, payment_method.id)%>",
+          entityaddress: "<%= payment_method.preferences[:merchant_address]%>"
     };
   </script>
 <% else %>

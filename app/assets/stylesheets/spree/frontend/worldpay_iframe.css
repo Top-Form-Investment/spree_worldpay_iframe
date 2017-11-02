@@ -2,3 +2,6 @@
     background: url('/assets/ajax-loader.gif') 45% 45% no-repeat;
     min-height: 280px;
 }
+#worldpay-entity-address{
+	display: none;
+}
