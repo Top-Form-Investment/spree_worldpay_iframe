@@ -59,7 +59,7 @@ module Spree
                   xml.include(code: 'ALL')
                 end
                 xml.shopper do
-                  xml.shopperEmailAddress self.preferences[:shopper_email]
+                  xml.shopperEmailAddress order.email
                 end
                 xml.billingAddress do
                   xml.address do
@@ -128,7 +128,7 @@ module Spree
 
         def create_payment_source(order_id, xml_response = nil)
           order = Spree::Order.find order_id
-          payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is null", 'Spree::Gateway::WorldpayIframe').first
+          payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is null", 'Spree::Gateway::WorldpayIframe').last
           if payment.present?
             if xml_response.blank?
               xml_response = self.order_inquiry(payment.response_code)

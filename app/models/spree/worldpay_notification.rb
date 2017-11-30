@@ -29,12 +29,12 @@ module Spree
             payment_method = Spree::PaymentMethod.find_by_type('Spree::Gateway::WorldpayIframe')
             payment_method.create_payment_source(order.id, xml_response)
           elsif self.event_type == 'CAPTURED'
-            payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').first
+            payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
             if payment.blank?
               notify = Spree::WorldpayNotification.where(order_id: order.id, event_type: ['AUTHORISED','SENT_FOR_AUTHORISATION']).first
               if notify.present?
                 notify.handle!
-                payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').first
+                payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
               end
             end
             payment.capture! if payment.present?
