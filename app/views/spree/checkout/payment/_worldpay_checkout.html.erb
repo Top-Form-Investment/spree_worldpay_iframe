@@ -2,9 +2,9 @@
 <script src='https://payments.worldpay.com/resources/hpp/integrations/embedded/js/hpp-embedded-integration-library.js'></script>
 <script type='text/javascript'>
   $(document).ready(function() {
-    $("form#checkout_form_payment input[type='radio']").on('click',function() {
+    $("form#checkout_form_payment .paymenttab input[type='radio']").on('click',function() {
       hide_order_now(this);
     });
-    hide_order_now($("form#checkout_form_payment input[type='radio']:checked").first());
+    hide_order_now($("form#checkout_form_payment .paymenttab input[type='radio']:checked").first());
   });
  </script>
