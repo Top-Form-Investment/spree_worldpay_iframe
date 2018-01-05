@@ -11,7 +11,9 @@ module Spree
     preference :country, :array
     preference :shopper_email, :string
     preference :merchant_address, :text
+    preference :redirect_on_merchant, :boolean
     preference :test_mode, :boolean
+
 
     def provider_class
       ActiveMerchant::Billing::WorldpayGateway
@@ -45,6 +47,12 @@ module Spree
     end
 
     def capture(money, authorization, options = {})
+      puts "-----------capture----------------"
+      # provider(authorization, options).capture(money, authorization, options.merge!({authorization_validated: true}))
+      ActiveMerchant::Billing::Response.new(true, "Payment has successfully captured", {}, {})
+    end
+
+    def mannual_capture(money, authorization, options = {})
       puts "-----------capture----------------"
       provider(authorization, options).capture(money, authorization, options.merge!({authorization_validated: true}))
     end
@@ -86,10 +94,6 @@ module Spree
 
     def auth_credit_card(authorization)
       payment = Spree::Payment.find_by_response_code(authorization)
-      order = payment.order
-      billing_address = order.billing_address
-      @currency = payment.currency
-      @country_iso = billing_address.country.iso3
       payment.source
     end
 

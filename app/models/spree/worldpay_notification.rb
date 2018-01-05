@@ -27,7 +27,7 @@ module Spree
           self.save
           if self.event_type == 'AUTHORISED' || self.event_type == 'SENT_FOR_AUTHORISATION'
             payment_method = Spree::PaymentMethod.find_by_type('Spree::Gateway::WorldpayIframe')
-            payment_method.create_payment_source(order.id, xml_response)
+            payment_method.create_payment_source(order.id, self.event_type, xml_response)
           elsif self.event_type == 'CAPTURED'
             payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
             if payment.blank?
@@ -37,7 +37,7 @@ module Spree
                 payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
               end
             end
-            payment.capture! if payment.present?
+            payment.capture! if payment.present? && payment.state != 'completed'
           end
         end
       rescue Exception => e

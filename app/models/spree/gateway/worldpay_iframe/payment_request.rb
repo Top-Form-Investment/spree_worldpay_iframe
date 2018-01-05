@@ -126,7 +126,7 @@ module Spree
           void_result
         end
 
-        def create_payment_source(order_id, xml_response = nil)
+        def create_payment_source(order_id, event_type, xml_response = nil)
           order = Spree::Order.find order_id
           payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is null", 'Spree::Gateway::WorldpayIframe').last
           if payment.present?
@@ -147,6 +147,10 @@ module Spree
             end
             payment.source = card
             payment.save
+          end
+          if event_type == 'AUTHORISED'
+            payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
+            payment.capture! if payment.present?
           end
         end
       end
