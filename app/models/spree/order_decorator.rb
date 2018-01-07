@@ -12,7 +12,7 @@ Spree::Order.class_eval do
   # Update payment information on order complete
   def create_payment_information
     if self.state == 'complete' && self.state_was != 'complete'
-      notifiy = Spree::WorldpayNotification.where(order_id: self.id).first
+      notifiy = Spree::WorldpayNotification.where(order_id: self.id).last
       notifiy.handle! if notifiy.present?
     end
   end
