@@ -9,7 +9,7 @@ Spree::Order.class_eval do
 
   # Update payment information on order complete
   def create_payment_information
-    notifiy = Spree::WorldpayNotification.where(order_id: self.id).last
+    notifiy = Spree::WorldpayNotification.where(order_id: self.id, event_type: 'AUTHORISED').last
     notifiy.handle! if notifiy.present?
   end
 
