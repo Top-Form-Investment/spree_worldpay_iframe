@@ -25,13 +25,11 @@ module Spree
             self.event_type = xml_response.at_xpath('//journal')['journalType']
           end
           self.save
-          if self.event_type == 'AUTHORISED' || self.event_type == 'SENT_FOR_AUTHORISATION'
+          if self.event_type == 'AUTHORISED'
             payment_method = Spree::PaymentMethod.find_by_type('Spree::Gateway::WorldpayIframe')
             payment_method.create_payment_source(order.id, self.event_type, xml_response)
-            if self.event_type == 'AUTHORISED' 
-              payment = Spree::Payment.where(order: order.id).joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
-              payment.capture! if payment.present?
-            end
+            payment = Spree::Payment.where(order: order.id).joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
+            payment.capture! if payment.present?
           elsif self.event_type == 'CAPTURED'
             payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
             if payment.blank?
