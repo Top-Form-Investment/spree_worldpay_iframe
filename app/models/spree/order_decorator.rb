@@ -1,7 +1,5 @@
 Spree::Order.class_eval do
 
-  after_save :create_payment_information
-
   # Return available payment methods
   def available_payment_methods
     @available_payment_methods ||= Spree::PaymentMethod.available_on_front_end.order(:position)
@@ -11,10 +9,8 @@ Spree::Order.class_eval do
 
   # Update payment information on order complete
   def create_payment_information
-    if self.state == 'complete' && self.state_was != 'complete'
-      notifiy = Spree::WorldpayNotification.where(order_id: self.id).last
-      notifiy.handle! if notifiy.present?
-    end
+    notifiy = Spree::WorldpayNotification.where(order_id: self.id).last
+    notifiy.handle! if notifiy.present?
   end
 
 end
