@@ -14,7 +14,7 @@ module Spree
 
     def handle!
       begin
-        xml_response = Nokogiri::XML(obj.response)
+        xml_response = Nokogiri::XML(self.response)
         order_code = xml_response.at_xpath('//orderStatusEvent')['orderCode']
         order_number = order_code.split('-').first
         order = Spree::Order.find_by_number order_number
@@ -27,7 +27,7 @@ module Spree
           self.save
           if self.event_type == 'AUTHORISED' || self.event_type == 'SENT_FOR_AUTHORISATION'
             payment_method = Spree::PaymentMethod.find_by_type('Spree::Gateway::WorldpayIframe')
-            payment_method.create_payment_source(order.id, obj.event_type, xml_response)
+            payment_method.create_payment_source(order.id, self.event_type, xml_response)
             if self.event_type == 'AUTHORISED' 
               payment = Spree::Payment.where(order: order.id).joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
               payment.capture! if payment.present?
