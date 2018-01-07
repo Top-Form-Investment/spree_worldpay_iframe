@@ -148,10 +148,6 @@ module Spree
             payment.source = card
             payment.save
           end
-          if event_type == 'AUTHORISED'
-            payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
-            payment.capture! if payment.present?
-          end
         end
       end
     end
