@@ -27,7 +27,7 @@ module Spree
                   end
                   xml.billingAddress do 
                     xml.address do 
-                      xml.address1 billing_address.address1
+                      xml.address1 order.street_address
                       xml.postalCode billing_address.zipcode
                       xml.city billing_address.city
                       xml.countryCode billing_address.country.iso

@@ -17,4 +17,7 @@ Spree::Order.class_eval do
     end
   end
 
+  def street_address
+    billing_address.address1 + ' ' + billing_address.address2
+  end
 end
