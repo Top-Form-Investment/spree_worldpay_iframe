@@ -77,7 +77,7 @@ module Spree
       payment = Spree::Payment.find_by_response_code(authorization)
       if payment.refunds.present? && payment.refunds.map(&:amount).sum == payment.amount
         ActiveMerchant::Billing::Response.new(false, "Payment has already been refunded.", {})
-      elsif payment.state == 'completed'
+      elsif payment.state == 'completed' && payment.worldpay_captured?
         ActiveMerchant::Billing::Response.new(false, "Payment can't perform 'Void' action after 'Catpure'.", {})
       else
         provider(authorization, options).void(authorization, options)
