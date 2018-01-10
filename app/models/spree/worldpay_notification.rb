@@ -25,6 +25,7 @@ module Spree
             self.event_type = xml_response.at_xpath('//journal')['journalType']
           end
           self.save
+          self.reload
           if self.event_type == 'AUTHORISED' || self.event_type == 'SENT_FOR_AUTHORISATION'
             payment_method = Spree::PaymentMethod.find_by_type('Spree::Gateway::WorldpayIframe')
             payment_method.create_payment_source(order.id, self.event_type, xml_response)
