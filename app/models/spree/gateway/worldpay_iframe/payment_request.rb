@@ -128,7 +128,8 @@ module Spree
 
         def create_payment_source(order_id, event_type, xml_response = nil)
           order = Spree::Order.find order_id
-          payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is null", 'Spree::Gateway::WorldpayIframe').last
+          order_code = xml_response.at_xpath('//orderStatusEvent')['orderCode']
+          payment = Spree::Payment.where(response_code: order_code).last
           if payment.present?
             if xml_response.blank?
               xml_response = self.order_inquiry(payment.response_code)

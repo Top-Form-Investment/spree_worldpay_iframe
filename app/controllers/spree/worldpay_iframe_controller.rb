@@ -40,7 +40,7 @@ module Spree
       @order.next
 
       if @order.complete?
-        @order.create_payment_information
+        OrderUpdateWorker.perform_async(@order.id)
         flash[:notice] = Spree.t(:order_processed_successfully)
         flash[:order_completed] = true
         redirect_to order_path(@order, :token => @order.guest_token)
