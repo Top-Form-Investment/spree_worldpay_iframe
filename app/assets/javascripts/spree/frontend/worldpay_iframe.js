@@ -2,10 +2,10 @@ function hide_order_now(obj){
     if($(obj).parent().attr('data-payment-type') == 'Spree::Gateway::WorldpayIframe'){
         $("form#checkout_form_payment").find("input[type='submit']").addClass('hide');
         open_payment_page($(obj).val());
-        $('#worldpay-entity-address').show();
+        $('.worldpay-entity-address').show();
     }else{
         $("form#checkout_form_payment").find("input[type='submit']").removeClass('hide');
-        $('#worldpay-entity-address').hide();
+        $('.worldpay-entity-address').hide();
     }
 }
 
@@ -16,6 +16,6 @@ function open_payment_page(method_id){
         libraryObject = new WPCL.Library();
         libraryObject.setup(customOptions[method_id]);
         console.log(customOptions);
-        $('#worldpay-entity-address p').html(customOptions[method_id]['entityaddress']);
+        $('.worldpay-entity-address p').html(customOptions[method_id]['entityaddress']);
     }
 }

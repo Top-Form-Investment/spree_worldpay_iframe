@@ -25,19 +25,27 @@ module Spree
             self.event_type = xml_response.at_xpath('//journal')['journalType']
           end
           self.save
+          self.reload
           if self.event_type == 'AUTHORISED' || self.event_type == 'SENT_FOR_AUTHORISATION'
             payment_method = Spree::PaymentMethod.find_by_type('Spree::Gateway::WorldpayIframe')
-            payment_method.create_payment_source(order.id, xml_response)
-          elsif self.event_type == 'CAPTURED'
-            payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
-            if payment.blank?
-              notify = Spree::WorldpayNotification.where(order_id: order.id, event_type: ['AUTHORISED','SENT_FOR_AUTHORISATION']).first
-              if notify.present?
-                notify.handle!
-                payment = order.payments.joins(:payment_method).where("spree_payment_methods.type =? and spree_payments.source_id is not null", 'Spree::Gateway::WorldpayIframe').last
-              end
+            payment_method.create_payment_source(order.id, self.event_type, xml_response)
+            if self.event_type == 'AUTHORISED' 
+              payment = Spree::Payment.where(response_code: order_code).last
+              payment.capture! if payment.present?
             end
-            payment.capture! if payment.present?
+          elsif self.event_type == 'CAPTURED'
+            payment = Spree::Payment.where(response_code: order_code).last
+            if payment.present?
+              if payment.source_id.blank?
+                notify = Spree::WorldpayNotification.where(order_id: order.id, event_type: ['AUTHORISED','SENT_FOR_AUTHORISATION']).last
+                if notify.present?
+                  notify.handle!
+                  payment.reload
+                end
+              end
+              payment.capture! if payment.state != 'completed'
+              payment.update(worldpay_capture: true)
+            end
           end
         end
       rescue Exception => e

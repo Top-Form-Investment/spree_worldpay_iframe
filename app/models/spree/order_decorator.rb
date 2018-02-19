@@ -11,10 +11,8 @@ Spree::Order.class_eval do
 
   # Update payment information on order complete
   def create_payment_information
-    if self.state == 'complete' && self.state_was != 'complete'
-      notifiy = Spree::WorldpayNotification.where(order_id: self.id).first
-      notifiy.handle! if notifiy.present?
-    end
+    notifiy = Spree::WorldpayNotification.where(order_id: self.id, event_type: 'AUTHORISED').last
+    notifiy.handle! if notifiy.present?
   end
 
   def street_address
