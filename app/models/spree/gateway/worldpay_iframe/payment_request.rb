@@ -13,8 +13,7 @@ module Spree
           'JCB-SSL'        => 'jcb',
           'MAESTRO-SSL'    => 'maestro',
           'LASER-SSL'      => 'laser',
-          'DINERS-SSL'     => 'diners_club',
-          'MAESTRO-SSL'    => 'switch'
+          'DINERS-SSL'     => 'diners_club'
         }
         def api_url
           self.preferences[:test_mode].present? ? TEST_URL : LIVE_URL
