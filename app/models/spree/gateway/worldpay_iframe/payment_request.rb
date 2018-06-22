@@ -49,9 +49,10 @@ module Spree
           billing_address = order.billing_address
           http, request = setup_api_call(billing_address.country.iso3, order.currency)
           order_code = "#{order.number}-#{Time.now.to_i}"
+          token_reference = 'TOK'+"#{order.number}_#{Time.now.to_i}"
           builder = build_request do |xml|
             xml.submit do
-              xml.order(orderCode: "#{order.number}-#{Time.now.to_i}", installationId: self.preferences[:installation_id]) do
+              xml.order(orderCode: order_code, installationId: self.preferences[:installation_id]) do
                 xml.description order.line_items.map(&:sku).join(',')
                 xml.amount(exponent: '2', currencyCode: order.currency, value: order.total.to_money.cents)
                 xml.orderContent order.line_items.map(&:sku).join(',')
@@ -60,6 +61,7 @@ module Spree
                 end
                 xml.shopper do
                   xml.shopperEmailAddress order.email
+                  xml.authenticatedShopperID self.preferences[:merchant_code]
                 end
                 xml.billingAddress do
                   xml.address do
@@ -69,11 +71,16 @@ module Spree
                     xml.countryCode billing_address.country.iso
                   end
                 end
+                xml.createToken(tokenScope: 'shopper') do
+                  xml.tokenEventReference token_reference
+                  xml.tokenReason 'Subscription'
+                end
               end
             end
           end
           request.body = builder
           response = http.request(request)
+          puts request.body.inspect
           puts response.read_body.inspect
           response = Nokogiri::XML(response.read_body)
           preferred_methods = (self.preferences[:card_type]||[]).select{|s| s.present?}
@@ -149,6 +156,38 @@ module Spree
             payment.source = card
             payment.save
           end
+        end
+
+        def create_recurring_payment(order_id, parent_order_id, token)
+          order = Spree::Order.find order_id
+          parent_order = Spree::Order.find parent_order_id
+          order_code = "#{order.number}-#{Time.now.to_i}"
+          billing_address = order.billing_address
+          http, request = setup_api_call(billing_address.country.iso3, order.currency)
+          builder = build_request do |xml|
+            xml.submit do
+              xml.order(orderCode: order_code) do
+                xml.description 'Recurring Payment'
+                xml.amount(exponent: '2', currencyCode: order.currency, value: order.total.to_money.cents)
+                xml.paymentDetails do
+                  xml.tag!('TOKEN-SSL', 'tokenScope' => 'shopper', 'captureCvc' => false) do 
+                    xml.paymentTokenID token
+                  end
+                  xml.session(shopperIPAddress: parent_order.last_ip_address, id: order.number)
+                end
+                xml.shopper do
+                  xml.shopperEmailAddress order.email
+                  xml.authenticatedShopperID self.preferences[:merchant_code]
+                end
+              end
+            end
+          end
+          request.body = builder
+          response = http.request(request)
+          puts request.body.inspect
+          puts response.read_body.inspect
+          response = Nokogiri::XML(response.read_body)
+          response
         end
       end
     end
