@@ -151,10 +151,10 @@ module Spree
             c_token = xml_response.at_xpath('//paymentTokenID').try(:content)
             card = Spree::CreditCard.where("user_id = ? AND month = ? AND year = ? AND cc_type = ? AND last_digits = ? AND name = ?  AND payment_method_id = ? ",order.user_id, c_month, c_year, CARD_CODES[c_cc_type]||c_cc_type, c_last_digits, c_name, payment.payment_method_id).first
             if card.blank?
-              card = Spree::CreditCard.new(number: c_number, verification_value: payment.response_code, user_id: order.user_id, month: c_month, year: c_year, cc_type: CARD_CODES[c_cc_type]||c_cc_type, last_digits: c_last_digits, name: c_name, payment_method_id: payment.payment_method_id, worldpay_token: c_token)
+              card = Spree::CreditCard.new(number: c_number, verification_value: payment.response_code, user_id: order.user_id, month: c_month, year: c_year, cc_type: CARD_CODES[c_cc_type]||c_cc_type, last_digits: c_last_digits, name: c_name, payment_method_id: payment.payment_method_id, worldpay_gateway_token: c_token)
               card.save
-            elsif card.worldpay_token.blank? && c_token.present?
-              card.worldpay_token = token
+            elsif card.worldpay_gateway_token.blank? && c_token.present?
+              card.worldpay_gateway_token = token
               card.save
             end
             payment.source = card
@@ -165,7 +165,7 @@ module Spree
         def create_recurring_payment(order_id, payment_id)
           order = Spree::Order.find order_id
           payment = Spree::Payment.find payment_id
-          token = payment.source.worldpay_token
+          token = payment.source.worldpay_gateway_token
           order_code = "#{order.number}-#{Time.now.to_i}"
           billing_address = order.billing_address
           http, request = setup_api_call(billing_address.country.iso3, order.currency)
