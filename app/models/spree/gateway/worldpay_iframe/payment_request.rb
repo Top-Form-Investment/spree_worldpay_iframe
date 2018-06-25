@@ -148,9 +148,13 @@ module Spree
             c_number = '4242********4242' if c_number.blank?
             c_last_digits = c_number.last(4)
             c_name = xml_response.at_xpath('//cardHolderName').content
+            c_token = xml_response.at_xpath('//paymentTokenID').try(:content)
             card = Spree::CreditCard.where("user_id = ? AND month = ? AND year = ? AND cc_type = ? AND last_digits = ? AND name = ?  AND payment_method_id = ? ",order.user_id, c_month, c_year, CARD_CODES[c_cc_type]||c_cc_type, c_last_digits, c_name, payment.payment_method_id).first
             if card.blank?
-              card = Spree::CreditCard.new(number: c_number, verification_value: payment.response_code, user_id: order.user_id, month: c_month, year: c_year, cc_type: CARD_CODES[c_cc_type]||c_cc_type, last_digits: c_last_digits, name: c_name, payment_method_id: payment.payment_method_id)
+              card = Spree::CreditCard.new(number: c_number, verification_value: payment.response_code, user_id: order.user_id, month: c_month, year: c_year, cc_type: CARD_CODES[c_cc_type]||c_cc_type, last_digits: c_last_digits, name: c_name, payment_method_id: payment.payment_method_id, worldpay_token: c_token)
+              card.save
+            elsif card.worldpay_token.blank? && c_token.present?
+              card.worldpay_token = token
               card.save
             end
             payment.source = card
@@ -158,22 +162,23 @@ module Spree
           end
         end
 
-        def create_recurring_payment(order_id, parent_order_id, token)
+        def create_recurring_payment(order_id, payment_id)
           order = Spree::Order.find order_id
-          parent_order = Spree::Order.find parent_order_id
+          payment = Spree::Payment.find payment_id
+          token = payment.source.worldpay_token
           order_code = "#{order.number}-#{Time.now.to_i}"
           billing_address = order.billing_address
           http, request = setup_api_call(billing_address.country.iso3, order.currency)
           builder = build_request do |xml|
             xml.submit do
-              xml.order(orderCode: order_code) do
+              xml.order(orderCode: order_code, installationId: self.preferences[:installation_id]) do
                 xml.description 'Recurring Payment'
                 xml.amount(exponent: '2', currencyCode: order.currency, value: order.total.to_money.cents)
                 xml.paymentDetails do
                   xml.tag!('TOKEN-SSL', 'tokenScope' => 'shopper', 'captureCvc' => false) do 
                     xml.paymentTokenID token
                   end
-                  xml.session(shopperIPAddress: parent_order.last_ip_address, id: order.number)
+                  xml.session(shopperIPAddress: order.last_ip_address, id: order.number)
                 end
                 xml.shopper do
                   xml.shopperEmailAddress order.email
@@ -187,7 +192,11 @@ module Spree
           puts request.body.inspect
           puts response.read_body.inspect
           response = Nokogiri::XML(response.read_body)
-          response
+          if response.at_xpath('//lastEvent').content == 'AUTHORISED'
+            payment.update(response_code: order_code)
+          else
+            false
+          end
         end
       end
     end
