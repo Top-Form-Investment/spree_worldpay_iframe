@@ -158,7 +158,16 @@ module Spree
               card.save
             end
             payment.source = card
-            payment.save
+            if payment.save
+              order.subscriptions.each do |subscription|
+                subscription.update(
+                  source: order.payments.from_credit_card.try(:last).try(:source),
+                  enabled: true,
+                  ship_address: order.ship_address.clone,
+                  bill_address: order.bill_address.clone
+                )
+              end
+            end
           end
         end
 
