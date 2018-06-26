@@ -135,7 +135,7 @@ module Spree
 
         def create_payment_source(order_id, event_type, xml_response = nil)
           order = Spree::Order.find order_id
-          order_code = xml_response.at_xpath('//orderStatusEvent')['orderCode']
+          order_code = (xml_response.at_xpath('//orderStatusEvent')||xml_response.at_xpath('//orderStatus'))['orderCode']
           payment = Spree::Payment.where(response_code: order_code).last
           if payment.present?
             if xml_response.blank?
