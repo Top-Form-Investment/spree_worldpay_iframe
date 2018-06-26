@@ -13,7 +13,6 @@ module Spree
     end
 
     def handle!
-      begin
         xml_response = Nokogiri::XML(self.response)
         order_code = (xml_response.at_xpath('//orderStatusEvent')||xml_response.at_xpath('//orderStatus'))['orderCode']
         order_number = order_code.split('-').first
@@ -48,9 +47,6 @@ module Spree
             end
           end
         end
-      rescue Exception => e
-        ExceptionNotifier.notify_exception(e, :env => 'production', :data => {:message => "was doing something wrong"})
-      end
     end
   end
 end
