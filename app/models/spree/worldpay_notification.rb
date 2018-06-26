@@ -15,7 +15,7 @@ module Spree
     def handle!
       begin
         xml_response = Nokogiri::XML(self.response)
-        order_code = xml_response.at_xpath('//orderStatusEvent')['orderCode']
+        order_code = (xml_response.at_xpath('//orderStatusEvent')||xml_response.at_xpath('//orderStatus'))['orderCode']
         order_number = order_code.split('-').first
         order = Spree::Order.find_by_number order_number
         if order.present?
