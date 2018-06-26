@@ -203,7 +203,8 @@ module Spree
           xml_response = Nokogiri::XML(response.read_body)
           if xml_response.at_xpath('//lastEvent').content == 'AUTHORISED'
             payment.update(response_code: order_code)
-            notification = Spree::WorldpayNotification.log(response.read_body)
+            notification = Spree::WorldpayNotification.new(response: xml_response.to_s)
+            notification.save
             notification.handle!
           else
             false
