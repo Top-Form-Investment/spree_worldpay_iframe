@@ -77,7 +77,7 @@ module Spree
           puts response.read_body.inspect
           response = Nokogiri::XML(response.read_body)
           preferred_methods = (self.preferences[:card_type]||[]).select{|s| s.present?}
-          preferred_method = preferred_methods.size == 1 ? preferred_methods.first : ''
+          preferred_method = preferred_methods.first
           [order_code, response.at_xpath('//error').try(:content), response.at_xpath('//reference').try(:content), preferred_method]
         end
 
