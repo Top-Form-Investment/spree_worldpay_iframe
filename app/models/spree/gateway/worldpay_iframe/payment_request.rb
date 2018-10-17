@@ -125,8 +125,7 @@ module Spree
           void_result
         end
 
-        def create_payment_source(order_id, event_type, xml_response = nil)
-          order = Spree::Order.find order_id
+        def create_payment_source(order, event_type, xml_response = nil)
           order_code = xml_response.at_xpath('//orderStatusEvent')['orderCode']
           payment = Spree::Payment.where(response_code: order_code).last
           if payment.present?
@@ -147,6 +146,9 @@ module Spree
             end
             payment.source = card
             payment.save
+            if event_type == 'AUTHORISED'
+              payment.capture!
+            end
           end
         end
       end

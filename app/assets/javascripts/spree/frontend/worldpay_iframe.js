@@ -17,6 +17,6 @@ function open_payment_page(method_id){
         libraryObject.setup(customOptions[method_id]);
     }
     if(customOptions[method_id] != undefined){
-        $('#worldpay-entity-address p').html(customOptions[method_id]['entityaddress']);
+        $('.worldpay-entity-address p').html(customOptions[method_id]['entityaddress']);
     }
 }
