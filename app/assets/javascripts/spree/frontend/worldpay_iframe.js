@@ -15,7 +15,8 @@ function open_payment_page(method_id){
         //initialise the library and pass options
         libraryObject = new WPCL.Library();
         libraryObject.setup(customOptions[method_id]);
-        console.log(customOptions);
-        $('.worldpay-entity-address p').html(customOptions[method_id]['entityaddress']);
+    }
+    if(customOptions[method_id] != undefined){
+        $('#worldpay-entity-address p').html(customOptions[method_id]['entityaddress']);
     }
 }

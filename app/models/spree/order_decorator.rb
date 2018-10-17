@@ -1,7 +1,5 @@
 Spree::Order.class_eval do
 
-  after_save :create_payment_information
-
   # Return available payment methods
   def available_payment_methods
     @available_payment_methods ||= Spree::PaymentMethod.where(active: true, display_on: ['both', 'front_end', '']).order(:updated_at)
@@ -11,8 +9,10 @@ Spree::Order.class_eval do
 
   # Update payment information on order complete
   def create_payment_information
-    notifiy = Spree::WorldpayNotification.where(order_id: self.id, event_type: 'AUTHORISED').last
-    notifiy.handle! if notifiy.present?
+    if self.state == 'complete' && self.payment_state == 'balance_due'
+      notifiy = Spree::WorldpayNotification.where(order_id: self.id, event_type: 'AUTHORISED').last
+      notifiy.handle! if notifiy.present?
+    end
   end
 
   def street_address
