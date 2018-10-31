@@ -43,7 +43,7 @@ module Spree
         OrderUpdateWorker.perform_async(@order.id)
         flash[:notice] = Spree.t(:order_processed_successfully)
         flash[:order_completed] = true
-        redirect_to order_path(@order, :token => @order.guest_token)
+        redirect_to thank_you_path(:id => @order.number, :token => @order.guest_token)
       else
         redirect_to checkout_state_path(@order.state)
       end
