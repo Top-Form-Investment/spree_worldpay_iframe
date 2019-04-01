@@ -48,8 +48,8 @@ module Spree
 
     def capture(money, authorization, options = {})
       puts "-----------capture----------------"
-      # provider(authorization, options).capture(money, authorization, options.merge!({authorization_validated: true}))
-      ActiveMerchant::Billing::Response.new(true, "Payment has successfully captured", {}, {})
+      provider(authorization, options).capture(money, authorization, options.merge!({authorization_validated: true}))
+      #ActiveMerchant::Billing::Response.new(true, "Payment has successfully captured", {}, {})
     end
 
     def mannual_capture(money, authorization, options = {})

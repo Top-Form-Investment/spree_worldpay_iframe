@@ -146,9 +146,7 @@ module Spree
             end
             payment.source = card
             payment.save
-            if event_type == 'AUTHORISED'
-              payment.capture!
-            end
+            payment
           end
         end
       end
