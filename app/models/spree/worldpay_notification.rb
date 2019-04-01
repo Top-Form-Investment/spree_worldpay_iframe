@@ -28,7 +28,12 @@ module Spree
           self.reload
           if self.event_type == 'AUTHORISED' || self.event_type == 'SENT_FOR_AUTHORISATION'
             payment_method = Spree::PaymentMethod.find_by_type('Spree::Gateway::WorldpayIframe')
-            payment_method.create_payment_source(order, self.event_type, xml_response)
+            payment = payment_method.create_payment_source(order, self.event_type, xml_response)
+            bill_address = order.bill_address
+            ship_address = order.ship_address
+            if self.event_type == 'AUTHORISED' && (ship_address.state_id == bill_address.state_id || ship_address.city == bill_address.city)
+              payment.capture!
+            end
           elsif self.event_type == 'CAPTURED'
             payment = Spree::Payment.where(response_code: order_code).last
             if payment.present?
