@@ -77,6 +77,11 @@ module Spree
       redirect_to checkout_state_path(@order.state)
     end
 
+    def payment_url
+      @payment_method = Spree::PaymentMethod.find params[:payment_method_id]
+      @order_code, @error, @world_pay_url, @preferred_method = @payment_method.hpp_payment_url(current_order.id)
+    end
+
     private
 
     def authorized?

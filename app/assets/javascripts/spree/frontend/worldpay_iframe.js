@@ -13,10 +13,12 @@ function open_payment_page(method_id){
     console.log(method_id);
     if($('#custom-html-'+method_id).find('#wp-cl').size() == 0){
         //initialise the library and pass options
-        libraryObject = new WPCL.Library();
-        libraryObject.setup(customOptions[method_id]);
+        $.get( "/worldpay_iframe/"+method_id+"/payment_url", function() {
+            libraryObject = new WPCL.Library();
+            libraryObject.setup(customOptions[method_id]);
+        })
     }
-    if(customOptions[method_id] != undefined){
+    if(typeof(customOptions) !== 'undefined' && customOptions[method_id] != undefined){
         $('.worldpay-entity-address p').html(customOptions[method_id]['entityaddress']);
     }
 }

@@ -17,4 +17,5 @@ Spree::Core::Engine.add_routes do
   get "worldpay_iframe/:order_number/payment/:payment_method/pending/:order_code", to: "worldpay_iframe#pending", as: :worldpay_pending
   get "worldpay_iframe/:order_number/payment/:payment_method/error/:order_code", to: "worldpay_iframe#error", as: :worldpay_error
   post "worldpay/notify", to: "worldpay_notifications#notify", as: :worldpay_notifiy
+  get "worldpay_iframe/:payment_method_id/payment_url", to: "worldpay_iframe#payment_url", as: :worldpay_payment_url
 end
