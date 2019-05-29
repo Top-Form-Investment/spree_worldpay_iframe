@@ -31,7 +31,7 @@ module Spree
             payment = payment_method.create_payment_source(order, self.event_type, xml_response)
             bill_address = order.bill_address
             ship_address = order.ship_address
-            if payment.present? && self.event_type == 'AUTHORISED' && ((ship_address.state_id == bill_address.state_id && ship_address.city.strip.downcase == bill_address.city.strip.downcase) || ship_address.first_name.downcase == bill_address.first_name.downcase) && order.quantity <= 3
+            if payment.present? && self.event_type == 'AUTHORISED' && ((ship_address.state_id == bill_address.state_id && ship_address.city.strip.downcase == bill_address.city.strip.downcase) || ship_address.first_name.downcase.strip == bill_address.first_name.downcase.strip) && order.quantity <= 3
               payment.capture!
             end
           elsif self.event_type == 'CAPTURED'
